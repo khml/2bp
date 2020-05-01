@@ -1,0 +1,5 @@
+/build/
+/cmake-build-debug/
+/.idea/
+/headers/TokenKind.hpp
+/src/TokenKind.cpp
