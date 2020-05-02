@@ -3,6 +3,7 @@
 
 #include <cyan/cyan.hpp>
 
+#include "Container.hpp"
 #include "Tokenizer.hpp"
 #include "FileTokenizer.hpp"
 #include "MacroLogger.hpp"
@@ -29,6 +30,7 @@ void read_print_loop()
         token::Tokenizer tokenizer;
         auto tokens = tokenizer.tokenize(line);
         token::printTokens(tokens);
+        auto container = token::Container(tokens);
     }
 }
 
@@ -39,6 +41,7 @@ void read_file_and_print(const string& filename)
     token::FileTokenizer tokenizer(filename);
     auto tokens = tokenizer.tokenize();
     token::printTokens(tokens);
+    auto container = token::Container(tokens);
 }
 
 int main(int argc, char* argv[])
