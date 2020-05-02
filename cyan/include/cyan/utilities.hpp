@@ -17,20 +17,24 @@ namespace cyan
 
     bool isNumber(const Type& type);
 
-    void mergeVector(std::vector<std::string>& to, std::vector<std::string>& from);
-
-    void mergeVector(std::vector<std::string>& to, std::vector<std::string>&& from);
-
     bool createDir(const std::string& directoryName);
 
     bool createDir(std::string&& directoryName);
 
     std::string toUpper(const std::string& str);
 
+    template <typename T>
+    constexpr void mergeVector(std::vector<T>& to, std::vector<T>& from);
+
+    template <typename T>
+    constexpr void mergeVector(std::vector<T>& to, std::vector<T>&& from);
+
     namespace config
     {
         constexpr size_t indentSize = 4;
     }
 }
+
+#include <cyan/impl/utilities.hpp>
 
 #endif //CYAN_UTILITIES_HPP
