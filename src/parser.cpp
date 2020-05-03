@@ -30,6 +30,6 @@ namespace parser
     {
         auto& token = container.consume();
         auto type = getType(token);
-        return cyan::Literal(type, token.value)();
+        return cyan::xpr(cyan::Literal(type, token.value));
     }
 }
