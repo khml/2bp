@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
 
+#include <cyan/cyan.hpp>
+
+#include "Container.hpp"
 #include "Tokenizer.hpp"
 #include "FileTokenizer.hpp"
 #include "MacroLogger.hpp"
@@ -27,6 +30,7 @@ void read_print_loop()
         token::Tokenizer tokenizer;
         auto tokens = tokenizer.tokenize(line);
         token::printTokens(tokens);
+        auto container = token::Container(tokens);
     }
 }
 
@@ -37,6 +41,7 @@ void read_file_and_print(const string& filename)
     token::FileTokenizer tokenizer(filename);
     auto tokens = tokenizer.tokenize();
     token::printTokens(tokens);
+    auto container = token::Container(tokens);
 }
 
 int main(int argc, char* argv[])
@@ -48,6 +53,15 @@ int main(int argc, char* argv[])
         string filename = argv[1];
         read_file_and_print(filename);
     }
+
+    cyan::Module module("main");
+    auto& builder = cyan::Builder::instance();
+
+    cyan::Function mainFunc("main", cyan::types::intType());
+    module << mainFunc;
+
+    builder.dump(module);
+    builder.build("sample");
 
     return 0;
 }
