@@ -1,0 +1,3 @@
+[submodule "cyan"]
+	path = cyan
+	url = git@github.com:khml/cyanprint_private.git
