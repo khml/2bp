@@ -28,17 +28,30 @@ namespace parser
         return cyan::Type(token::type::fromTokenType(token.type));
     }
 
+    cyan::Expression priority(token::Container& container)
+    {
+        if (container.consume(kind_t::PARENTHESIS_LEFT))
+        {
+            auto result = sum(container);
+            if (!container.consume(kind_t::PARENTHESISE_RIGHT))
+                throw "Expected PARENTHESISE_RIGHT";
+            return result.parenthesis();
+        }
+
+        return identifier(container);
+    }
+
     cyan::Expression mul(token::Container& container)
     {
-        auto result = identifier(container);
+        auto result = priority(container);
         while (container.hasNext())
         {
             if (container.consume(kind_t::ASTERISK))
-                result = result.mul(identifier(container));
+                result = result.mul(priority(container));
             else if (container.consume(kind_t::SLASH))
-                result = result.div(identifier(container));
+                result = result.div(priority(container));
             else if (container.consume(kind_t::PERCENT))
-                result = result.mod(identifier(container));
+                result = result.mod(priority(container));
             else
                 break;
         }

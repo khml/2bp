@@ -11,6 +11,8 @@
 
 namespace parser
 {
+    cyan::Expression priority(token::Container& container);
+
     cyan::Expression mul(token::Container& container);
 
     cyan::Expression sum(token::Container& container);
