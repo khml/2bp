@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <utility>
 
-#include "FileReader.hpp"
+#include "file_reader.hpp"
 
 namespace io
 {

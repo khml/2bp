@@ -5,7 +5,7 @@
 #include <iostream>
 #include <utility>
 
-#include "Token.hpp"
+#include "token.hpp"
 
 #define MOVE(value) value(std::move((value)))
 

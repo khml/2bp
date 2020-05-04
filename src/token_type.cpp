@@ -4,8 +4,8 @@
 
 #include <regex>
 
-#include "TokenType.hpp"
-#include "TokenKind.hpp"
+#include "token_type.hpp"
+#include "token_kind.hpp"
 
 using std::string;
 using std::regex;

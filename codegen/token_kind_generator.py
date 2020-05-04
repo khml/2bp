@@ -2,8 +2,8 @@
 
 from collections import OrderedDict
 
-HEADER_FILE_NAME = "../headers/TokenKind.hpp"
-IMPL_FILE_NAME = "../src/TokenKind.cpp"
+HEADER_FILE_NAME = "../headers/token_kind.hpp"
+IMPL_FILE_NAME = "../src/token_kind.cpp"
 NAME_SPACE = "tokenKind"
 
 TokenKind = OrderedDict([
@@ -133,7 +133,7 @@ class Impl:
 
 #include <map>
 
-#include "TokenKind.hpp"
+#include "token_kind.hpp"
 
 namespace token
 {{

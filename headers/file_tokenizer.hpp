@@ -5,16 +5,16 @@
 #ifndef BLUEPRINT_FILETOKENIZER_HPP
 #define BLUEPRINT_FILETOKENIZER_HPP
 
-#include "Tokenizer.hpp"
+#include "tokenizer.hpp"
 
 namespace token
 {
-    class FileTokenizer : protected Tokenizer
+    class file_tokenizer : protected Tokenizer
     {
     public:
-        explicit FileTokenizer(const std::string& filename);
+        explicit file_tokenizer(const std::string& filename);
 
-        ~FileTokenizer() override;
+        ~file_tokenizer() override;
 
         std::vector<Token> tokenize();
 

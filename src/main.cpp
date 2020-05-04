@@ -3,10 +3,10 @@
 
 #include <cyan/cyan.hpp>
 
-#include "Container.hpp"
-#include "Tokenizer.hpp"
-#include "FileTokenizer.hpp"
-#include "MacroLogger.hpp"
+#include "container.hpp"
+#include "tokenizer.hpp"
+#include "file_tokenizer.hpp"
+#include "macro_logger.hpp"
 #include "parser.hpp"
 
 using std::string;
@@ -39,7 +39,7 @@ void read_file_and_print(const string& filename)
 {
     STD_ERR_LOG("filename:" << filename);
 
-    token::FileTokenizer tokenizer(filename);
+    token::file_tokenizer tokenizer(filename);
     auto tokens = tokenizer.tokenize();
     token::printTokens(tokens);
     auto container = token::Container(tokens);
