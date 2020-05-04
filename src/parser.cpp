@@ -28,16 +28,33 @@ namespace parser
         return cyan::Type(token::type::fromTokenType(token.type));
     }
 
-    cyan::Expression sum(token::Container& container)
+    cyan::Expression mul(token::Container& container)
     {
         auto result = identifier(container);
+        while (container.hasNext())
+        {
+            if (container.consume(kind_t::ASTERISK))
+                result = result.mul(identifier(container));
+            else if (container.consume(kind_t::SLASH))
+                result = result.div(identifier(container));
+            else if (container.consume(kind_t::PERCENT))
+                result = result.mod(identifier(container));
+            else
+                break;
+        }
+        return result;
+    }
+
+    cyan::Expression sum(token::Container& container)
+    {
+        auto result = mul(container);
 
         while (container.hasNext())
         {
             if (container.consume(kind_t::ADD))
-                result = result.add(identifier(container));
+                result = result.add(mul(container));
             else if (container.consume(kind_t::SUB))
-                result = result.sub(identifier(container));
+                result = result.sub(mul(container));
             else
                 break;
         }

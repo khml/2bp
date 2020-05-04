@@ -11,6 +11,8 @@
 
 namespace parser
 {
+    cyan::Expression mul(token::Container& container);
+
     cyan::Expression sum(token::Container& container);
 
     cyan::Expression identifier(token::Container& container);
