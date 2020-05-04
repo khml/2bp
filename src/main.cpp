@@ -7,6 +7,7 @@
 #include "Tokenizer.hpp"
 #include "FileTokenizer.hpp"
 #include "MacroLogger.hpp"
+#include "parser.hpp"
 
 using std::string;
 using std::cerr;
@@ -42,6 +43,23 @@ void read_file_and_print(const string& filename)
     auto tokens = tokenizer.tokenize();
     token::printTokens(tokens);
     auto container = token::Container(tokens);
+    auto result = parser::sum(container);
+    STD_ERR_LOG("result = " << result());
+
+    // create an executable file
+    cyan::Module module("main");
+    module.include2c("iostream");
+    auto& builder = cyan::Builder::instance();
+
+    cyan::Function mainFunc("main", cyan::types::intType());
+    mainFunc << result.cout().endl();
+
+    auto zero = cyan::Literal(0);
+    mainFunc().createRetValue(zero);
+    module << mainFunc;
+
+    builder.dump(module);
+    builder.build("a.out");
 }
 
 int main(int argc, char* argv[])
@@ -53,15 +71,6 @@ int main(int argc, char* argv[])
         string filename = argv[1];
         read_file_and_print(filename);
     }
-
-    cyan::Module module("main");
-    auto& builder = cyan::Builder::instance();
-
-    cyan::Function mainFunc("main", cyan::types::intType());
-    module << mainFunc;
-
-    builder.dump(module);
-    builder.build("sample");
 
     return 0;
 }

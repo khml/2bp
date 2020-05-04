@@ -6,6 +6,8 @@
 
 #include "parser.hpp"
 
+namespace kind_t = token::kind;
+
 namespace parser
 {
     cyan::Type getType(token::Token& token)
@@ -24,6 +26,23 @@ namespace parser
                 break;
         }
         return cyan::Type(token::type::fromTokenType(token.type));
+    }
+
+    cyan::Expression sum(token::Container& container)
+    {
+        auto result = identifier(container);
+
+        while (container.hasNext())
+        {
+            if (container.consume(kind_t::ADD))
+                result = result.add(identifier(container));
+            else if (container.consume(kind_t::SUB))
+                result = result.sub(identifier(container));
+            else
+                break;
+        }
+
+        return result;
     }
 
     cyan::Expression identifier(token::Container& container)
