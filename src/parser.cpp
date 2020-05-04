@@ -41,17 +41,30 @@ namespace parser
         return identifier(container);
     }
 
+    cyan::Expression unary(token::Container& container)
+    {
+        auto result = cyan::Expression();
+        if (container.consume(kind_t::ADD))
+            result.add(priority(container));
+        else if (container.consume(kind_t::SUB))
+            result.sub(priority(container));
+        else
+            result = priority(container);
+
+        return result;
+    }
+
     cyan::Expression mul(token::Container& container)
     {
-        auto result = priority(container);
+        auto result = unary(container);
         while (container.hasNext())
         {
             if (container.consume(kind_t::ASTERISK))
-                result = result.mul(priority(container));
+                result = result.mul(unary(container));
             else if (container.consume(kind_t::SLASH))
-                result = result.div(priority(container));
+                result = result.div(unary(container));
             else if (container.consume(kind_t::PERCENT))
-                result = result.mod(priority(container));
+                result = result.mod(unary(container));
             else
                 break;
         }
