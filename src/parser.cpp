@@ -30,6 +30,9 @@ namespace parser
 
     cyan::Expression priority(token::Container& container)
     {
+        /*
+         * priority = identifier | “(“ sum “)”
+         */
         if (container.consume(kind_t::PARENTHESIS_LEFT))
         {
             auto result = sum(container);
@@ -43,6 +46,9 @@ namespace parser
 
     cyan::Expression unary(token::Container& container)
     {
+        /*
+         * unary = ( "+" | "-" ) priority
+         */
         auto result = cyan::Expression();
         if (container.consume(kind_t::ADD))
             result.add(priority(container));
@@ -56,6 +62,9 @@ namespace parser
 
     cyan::Expression mul(token::Container& container)
     {
+        /*
+         * mul = unary ( “*” unary | “/“  unary | “%” unary )*
+         */
         auto result = unary(container);
         while (container.hasNext())
         {
@@ -73,6 +82,9 @@ namespace parser
 
     cyan::Expression sum(token::Container& container)
     {
+        /*
+         * sum = mul ( “+” mul | “-“ mul )*
+         */
         auto result = mul(container);
 
         while (container.hasNext())
@@ -90,6 +102,9 @@ namespace parser
 
     cyan::Expression identifier(token::Container& container)
     {
+        /*
+         * identifier = [_a-zA-Z][_a-zA-Z0-9]? | [0-9] ( "." [0-9]+ ) ( "f" )
+         */
         auto& token = container.consume();
         auto type = getType(token);
         return cyan::xpr(cyan::Literal(type, token.value));
