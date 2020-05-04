@@ -11,6 +11,8 @@
 
 namespace parser
 {
+    cyan::Expression primary(token::Container& container);
+
     cyan::Expression priority(token::Container& container);
 
     cyan::Expression unary(token::Container& container);

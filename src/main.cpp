@@ -37,14 +37,14 @@ void read_print_loop()
 
 void read_file_and_print(const string& filename)
 {
-    STD_ERR_LOG("filename:" << filename);
+    //STD_ERR_LOG("filename = " << filename);
 
     token::file_tokenizer tokenizer(filename);
     auto tokens = tokenizer.tokenize();
-    token::printTokens(tokens);
+    //token::printTokens(tokens);
     auto container = token::Container(tokens);
     auto result = parser::sum(container);
-    STD_ERR_LOG("result = " << result());
+    //STD_ERR_LOG("result = " << result());
 
     // create an executable file
     cyan::Module module("main");
@@ -52,7 +52,7 @@ void read_file_and_print(const string& filename)
     auto& builder = cyan::Builder::instance();
 
     cyan::Function mainFunc("main", cyan::types::intType());
-    mainFunc << result.cout().endl();
+    mainFunc << result;
 
     auto zero = cyan::Literal(0);
     mainFunc().createRetValue(zero);

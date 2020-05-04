@@ -3,7 +3,9 @@
 //
 
 #include <cyan/value.hpp>
+#include <cyan/arguments.hpp>
 
+#include "macro_logger.hpp"
 #include "parser.hpp"
 
 namespace kind_t = token::kind;
@@ -28,11 +30,41 @@ namespace parser
         return cyan::Type(token::type::fromTokenType(token.type));
     }
 
+    cyan::Expression primary(token::Container& container)
+    {
+        /*
+         * primary = identifier ( "(" sum ")" )
+         */
+
+        LOG_DEBUG("primary");
+
+        if (!container.next(kind_t::PARENTHESIS_LEFT))
+            return identifier(container);
+
+        auto name = container.consume().value;
+
+        container.consume(kind_t::PARENTHESIS_LEFT);
+
+        cyan::Arguments args;
+        args << sum(container);
+
+        if (!container.consume(kind_t::PARENTHESISE_RIGHT))
+            throw "Expected PARENTHESISE_RIGHT";
+
+        if (name == "print")
+            return args[0].cout().endl();
+
+        return cyan::createCallee(name, args);
+    }
+
     cyan::Expression priority(token::Container& container)
     {
         /*
-         * priority = identifier | “(“ sum “)”
+         * priority = primary | “(“ sum “)”
          */
+
+        LOG_DEBUG("priority");
+
         if (container.consume(kind_t::PARENTHESIS_LEFT))
         {
             auto result = sum(container);
@@ -41,7 +73,7 @@ namespace parser
             return result.parenthesis();
         }
 
-        return identifier(container);
+        return primary(container);
     }
 
     cyan::Expression unary(token::Container& container)
@@ -49,6 +81,9 @@ namespace parser
         /*
          * unary = ( "+" | "-" ) priority
          */
+
+        LOG_DEBUG("unary");
+
         auto result = cyan::Expression();
         if (container.consume(kind_t::ADD))
             result.add(priority(container));
@@ -65,6 +100,9 @@ namespace parser
         /*
          * mul = unary ( “*” unary | “/“  unary | “%” unary )*
          */
+
+        LOG_DEBUG("mul");
+
         auto result = unary(container);
         while (container.hasNext())
         {
@@ -85,6 +123,9 @@ namespace parser
         /*
          * sum = mul ( “+” mul | “-“ mul )*
          */
+
+        LOG_DEBUG("sum");
+
         auto result = mul(container);
 
         while (container.hasNext())
@@ -105,6 +146,9 @@ namespace parser
         /*
          * identifier = [_a-zA-Z][_a-zA-Z0-9]? | [0-9] ( "." [0-9]+ ) ( "f" )
          */
+
+        LOG_DEBUG("identifier");
+
         auto& token = container.consume();
         auto type = getType(token);
         return cyan::xpr(cyan::Literal(type, token.value));
