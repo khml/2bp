@@ -71,14 +71,14 @@ namespace parser
     cyan::Expression priority(token::Container& container)
     {
         /*
-         * priority = primary | “(“ sum “)”
+         * priority = primary | “(“ comparison “)”
          */
 
         LOG_DEBUG("priority");
 
         if (container.consume(kind_t::PARENTHESIS_LEFT))
         {
-            auto result = sum(container);
+            auto result = comparison(container);
             consumeForce(container, kind_t::PARENTHESISE_RIGHT);
             return result.parenthesis();
         }
@@ -167,12 +167,12 @@ namespace parser
     cyan::Expression equation(token::Container& container)
     {
         /*
-         * equation = sum ";"
+         * equation = comparison ";"
          */
 
         LOG_DEBUG("equation");
 
-        auto result = sum(container);
+        auto result = comparison(container);
         consumeForce(container, kind_t::SEMICOLON);
         return result;
     }
@@ -257,5 +257,34 @@ namespace parser
         consumeForce(container, kind_t::EQUAL);
 
         return var.assign(equation(container));
+    }
+
+    cyan::Expression comparison(token::Container& container)
+    {
+        /*
+         * comparison = sum ( [ "==", <", "<=", ">=", ">" ] sum )*
+         */
+
+        LOG_DEBUG("comparison");
+
+        auto result = sum(container);
+
+        while (container.hasNext())
+        {
+            if (container.consume(kind_t::EQUIVALENCE))
+                result.equal(sum(container));
+            else if (container.consume(kind_t::LESSER_THAN))
+                result.lesserThan(sum(container));
+            else if (container.consume(kind_t::LESSER))
+                result.lesser(sum(container));
+            else if (container.consume(kind_t::GRATER_THAN))
+                result.graterThan(sum(container));
+            else if (container.consume(kind_t::GRATER))
+                result.grater(sum(container));
+            else
+                break;
+        }
+
+        return result;
     }
 }
