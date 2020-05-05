@@ -176,4 +176,20 @@ namespace parser
         consumeForce(container, kind_t::SEMICOLON);
         return result;
     }
+
+    cyan::CodeBlock code(token::Container& container)
+    {
+        /*
+         * code = statement*
+         */
+
+        LOG_DEBUG("code");
+
+        auto codeBlock = cyan::CodeBlock();
+
+        while (container.hasNext())
+            codeBlock << statement(container);
+
+        return codeBlock;
+    }
 }

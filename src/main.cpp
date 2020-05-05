@@ -43,7 +43,7 @@ void read_file_and_print(const string& filename)
     auto tokens = tokenizer.tokenize();
     //token::printTokens(tokens);
     auto container = token::Container(tokens);
-    auto result = parser::statement(container);
+    auto result = parser::code(container);
     //STD_ERR_LOG("result = " << result());
 
     // create an executable file
@@ -52,7 +52,7 @@ void read_file_and_print(const string& filename)
     auto& builder = cyan::Builder::instance();
 
     cyan::Function mainFunc("main", cyan::types::intType());
-    mainFunc << result;
+    mainFunc() = result;
 
     auto zero = cyan::Literal(0);
     mainFunc().createRetValue(zero);
