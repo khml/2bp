@@ -164,13 +164,13 @@ namespace parser
         return cyan::xpr(cyan::Literal(type, token.value));
     }
 
-    cyan::Expression expression(token::Container& container)
+    cyan::Expression equation(token::Container& container)
     {
         /*
-         * statement = sum ";"
+         * equation = sum ";"
          */
 
-        LOG_DEBUG("statement");
+        LOG_DEBUG("equation");
 
         auto result = sum(container);
         consumeForce(container, kind_t::SEMICOLON);
@@ -221,5 +221,41 @@ namespace parser
         }
 
         return block;
+    }
+
+    cyan::Expression expression(token::Container& container)
+    {
+        /*
+         * expression = assignment | equation
+         */
+
+        LOG_DEBUG("expression");
+
+        if ((container.current(kind_t::IDENTIFIER) && container.next(kind_t::COLON)) ||
+            (container.current(kind_t::IDENTIFIER) && container.next(kind_t::EQUAL)))
+            return assignment(container);
+        else
+            return equation(container);
+    }
+
+    cyan::Expression assignment(token::Container& container)
+    {
+        /*
+         * assignment = identifier ( ":" type ) “=“ equation
+         */
+
+        LOG_DEBUG("assignment");
+
+        const auto name = container.consume().value;
+
+        std::string type = "auto";
+        if (container.consume(kind_t::COLON))
+            type = container.consume().value;
+
+        auto var = cyan::xpr(cyan::Variable(name, cyan::Type(type)));
+
+        consumeForce(container, kind_t::EQUAL);
+
+        return var.assign(equation(container));
     }
 }
