@@ -56,12 +56,12 @@ TokenKind = OrderedDict([
     ("FUNCTION", 'fn'),
 
     # primitive types
-    ('STRING', 'string'),
-    ("INT", 'int'),
-    ("FLOAT", 'float'),
-    ("DOUBLE", 'double'),
-    ("BOOL", 'bool'),
-    ("VOID", 'void'),
+    # ('STRING', 'string'),
+    # ("INT", 'int'),
+    # ("FLOAT", 'float'),
+    # ("DOUBLE", 'double'),
+    # ("BOOL", 'bool'),
+    # ("VOID", 'void'),
 
     # control syntax
     ("RETURN", 'return'),
