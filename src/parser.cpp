@@ -164,7 +164,7 @@ namespace parser
         return cyan::xpr(cyan::Literal(type, token.value));
     }
 
-    cyan::Expression statement(token::Container& container)
+    cyan::Expression expression(token::Container& container)
     {
         /*
          * statement = sum ";"
@@ -185,11 +185,41 @@ namespace parser
 
         LOG_DEBUG("code");
 
-        auto codeBlock = cyan::CodeBlock();
+        auto block = cyan::CodeBlock();
 
         while (container.hasNext())
-            codeBlock << statement(container);
+        {
+            if (container.current(kind_t::BRACE_LEFT))
+                block << statements(container);
+            else
+                block << expression(container);
+        }
 
-        return codeBlock;
+        return block;
+    }
+
+    cyan::CodeBlock statements(token::Container& container)
+    {
+        /*
+         * statements = expression | "{" statements* "}"
+         */
+
+        LOG_DEBUG("statements");
+
+        auto block = cyan::CodeBlock();
+
+        consumeForce(container, kind_t::BRACE_LEFT);
+
+        while (container.hasNext())
+        {
+            if (container.current(kind_t::BRACE_LEFT))
+                block << statements(container);
+            else if (container.consume(kind_t::BRACE_RIGHT))
+                break;
+            else
+                block << expression(container);
+        }
+
+        return block;
     }
 }
