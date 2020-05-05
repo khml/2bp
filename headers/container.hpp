@@ -15,6 +15,8 @@ namespace token
     class Container
     {
     public:
+        explicit Container(std::vector<Token>&& tokens);
+
         explicit Container(std::vector<Token>& tokens);
 
         void reset();

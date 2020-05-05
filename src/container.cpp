@@ -7,6 +7,9 @@
 namespace token
 {
 
+    Container::Container(std::vector<Token>&& tokens) :tokens(tokens)
+    {}
+
     Container::Container(std::vector<Token>& tokens) :tokens(tokens)
     {}
 
@@ -53,7 +56,7 @@ namespace token
 
     bool Container::next(token::kind::Kind kind)
     {
-        if(!hasNext())
+        if (!hasNext())
             return false;
 
         return tokens[indicator + 1].kind == kind;
