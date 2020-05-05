@@ -5,8 +5,8 @@
 #ifndef BLUEPRINT_TOKEN_HPP
 #define BLUEPRINT_TOKEN_HPP
 
-#include "TokenKind.hpp"
-#include "TokenType.hpp"
+#include "token_kind.hpp"
+#include "token_type.hpp"
 
 namespace token
 {

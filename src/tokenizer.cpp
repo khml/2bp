@@ -5,9 +5,9 @@
 #include <iostream>
 #include <utility>
 
-#include "MacroLogger.hpp"
-#include "FileReader.hpp"
-#include "Tokenizer.hpp"
+#include "macro_logger.hpp"
+#include "file_reader.hpp"
+#include "tokenizer.hpp"
 
 namespace token
 {

@@ -7,8 +7,8 @@
 
 #include <vector>
 
-#include "TokenKind.hpp"
-#include "Token.hpp"
+#include "token_kind.hpp"
+#include "token.hpp"
 
 namespace token
 {
@@ -26,6 +26,8 @@ namespace token
         bool consume(token::kind::Kind kind);
 
         Token& current();
+
+        bool current(token::kind::Kind kind);
 
         Token& next();
 

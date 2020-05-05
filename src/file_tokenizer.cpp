@@ -5,19 +5,19 @@
 #include <algorithm>
 #include <utility>
 
-#include "FileReader.hpp"
-#include "Tokenizer.hpp"
-#include "FileTokenizer.hpp"
+#include "file_reader.hpp"
+#include "tokenizer.hpp"
+#include "file_tokenizer.hpp"
 
 namespace token
 {
-    FileTokenizer::FileTokenizer(const std::string& filename) :filename(filename), lines(io::readFile(filename))
+    file_tokenizer::file_tokenizer(const std::string& filename) :filename(filename), lines(io::readFile(filename))
     {}
 
-    FileTokenizer::~FileTokenizer()
+    file_tokenizer::~file_tokenizer()
     = default;
 
-    std::vector<Token> FileTokenizer::tokenize()
+    std::vector<Token> file_tokenizer::tokenize()
     {
         row = 0;
         std::vector<Token> allTokens;
@@ -63,12 +63,12 @@ namespace token
         return std::move(allTokens);
     }
 
-    Token FileTokenizer::makeToken(token::kind::Kind kindVal, const std::string& value, token::type::Type type)
+    Token file_tokenizer::makeToken(token::kind::Kind kindVal, const std::string& value, token::type::Type type)
     {
         return Token(kindVal, value, type, filename, row);
     }
 
-    Token FileTokenizer::makeToken(token::kind::Kind kindVal, const std::string& value)
+    Token file_tokenizer::makeToken(token::kind::Kind kindVal, const std::string& value)
     {
         return Token(kindVal, value, filename, row);
     }

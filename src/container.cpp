@@ -2,7 +2,7 @@
 // Created by KHML on 2020/05/02.
 //
 
-#include "Container.hpp"
+#include "container.hpp"
 
 namespace token
 {
@@ -39,6 +39,11 @@ namespace token
     Token& Container::current()
     {
         return tokens[indicator];
+    }
+
+    bool Container::current(token::kind::Kind kind)
+    {
+        return current().kind == kind;
     }
 
     Token& Container::next()
