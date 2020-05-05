@@ -2,6 +2,9 @@
 // Created by KHML on 2020/05/02.
 //
 
+#include <iostream>
+#include <stdexcept>
+
 #include <cyan/value.hpp>
 #include <cyan/arguments.hpp>
 
@@ -12,7 +15,16 @@ namespace kind_t = token::kind;
 
 namespace parser
 {
-    cyan::Type getType(token::Token& token)
+    static void consumeForce(token::Container& container, kind_t::Kind kind)
+    {
+        if (container.consume(kind))
+            return;
+
+        STD_ERR_LOG("Expected Token : " << kind_t::fromTokenKind(kind));
+        throw std::runtime_error("Expected Token : " + kind_t::fromTokenKind(kind));
+    }
+
+    static cyan::Type getType(token::Token& token)
     {
         switch (token.type)
         {
@@ -48,8 +60,7 @@ namespace parser
         cyan::Arguments args;
         args << sum(container);
 
-        if (!container.consume(kind_t::PARENTHESISE_RIGHT))
-            throw "Expected PARENTHESISE_RIGHT";
+        consumeForce(container, kind_t::PARENTHESISE_RIGHT);
 
         if (name == "print")
             return args[0].cout().endl();
@@ -68,8 +79,7 @@ namespace parser
         if (container.consume(kind_t::PARENTHESIS_LEFT))
         {
             auto result = sum(container);
-            if (!container.consume(kind_t::PARENTHESISE_RIGHT))
-                throw "Expected PARENTHESISE_RIGHT";
+            consumeForce(container, kind_t::PARENTHESISE_RIGHT);
             return result.parenthesis();
         }
 
@@ -152,5 +162,18 @@ namespace parser
         auto& token = container.consume();
         auto type = getType(token);
         return cyan::xpr(cyan::Literal(type, token.value));
+    }
+
+    cyan::Expression statement(token::Container& container)
+    {
+        /*
+         * statement = sum ";"
+         */
+
+        LOG_DEBUG("statement");
+
+        auto result = sum(container);
+        consumeForce(container, kind_t::SEMICOLON);
+        return result;
     }
 }

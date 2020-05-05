@@ -22,6 +22,8 @@ namespace parser
     cyan::Expression sum(token::Container& container);
 
     cyan::Expression identifier(token::Container& container);
+
+    cyan::Expression statement(token::Container& container);
 }
 
 #endif //BP_PARSER_HPP

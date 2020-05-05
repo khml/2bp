@@ -43,7 +43,7 @@ void read_file_and_print(const string& filename)
     auto tokens = tokenizer.tokenize();
     //token::printTokens(tokens);
     auto container = token::Container(tokens);
-    auto result = parser::sum(container);
+    auto result = parser::statement(container);
     //STD_ERR_LOG("result = " << result());
 
     // create an executable file
