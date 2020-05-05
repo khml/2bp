@@ -7,6 +7,8 @@
 
 #include <cyan/code_block.hpp>
 #include <cyan/expression.hpp>
+#include <cyan/function.hpp>
+#include <cyan/module.hpp>
 
 #include "container.hpp"
 
@@ -16,9 +18,10 @@ namespace parser
 
     code = statements*
     statements = expression | "{" statements* "}"
-    expression = assignment | equation
+    expression = equation | assignment | function
     assignment = identifier ( ":" type ) “=“ equation
-    equation = condition ";"
+    function = "fn" identifier "(" ")" "{" statements "}"
+    equation = ( "return" ) condition ";"
     condition = comparison ( “&&” comparison | “||” comparison)*
     comparison = sum ( [ "==", <", "<=", ">=", ">" ] sum )*
     type = identifier
@@ -31,13 +34,15 @@ namespace parser
 
  */
 
-    cyan::CodeBlock code(token::Container& container);
+    cyan::CodeBlock code(token::Container& container, cyan::Module& module);
 
-    cyan::CodeBlock statements(token::Container& container);
+    cyan::CodeBlock statements(token::Container& container, cyan::Module& module);
 
-    cyan::Expression expression(token::Container& container);
+    cyan::Expression expression(token::Container& container, cyan::Module& module);
 
     cyan::Expression assignment(token::Container& container);
+
+    cyan::Function function(token::Container& container, cyan::Module& module);
 
     cyan::Expression equation(token::Container& container);
 

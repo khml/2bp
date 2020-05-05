@@ -167,17 +167,22 @@ namespace parser
     cyan::Expression equation(token::Container& container)
     {
         /*
-         * equation = condition ";"
+         * equation = ( "return" ) condition ";"
          */
 
         LOG_DEBUG("equation");
 
-        auto result = condition(container);
+        cyan::Expression result;
+
+        if (container.consume(kind_t::RETURN))
+            result = condition(container).ret();
+        else
+            result = condition(container);
         consumeForce(container, kind_t::SEMICOLON);
         return result;
     }
 
-    cyan::CodeBlock code(token::Container& container)
+    cyan::CodeBlock code(token::Container& container, cyan::Module& module)
     {
         /*
          * code = statement*
@@ -190,15 +195,15 @@ namespace parser
         while (container.hasNext())
         {
             if (container.current(kind_t::BRACE_LEFT))
-                block << statements(container);
+                block << statements(container, module);
             else
-                block << expression(container);
+                block << expression(container, module);
         }
 
         return block;
     }
 
-    cyan::CodeBlock statements(token::Container& container)
+    cyan::CodeBlock statements(token::Container& container, cyan::Module& module)
     {
         /*
          * statements = expression | "{" statements* "}"
@@ -213,29 +218,41 @@ namespace parser
         while (container.hasNext())
         {
             if (container.current(kind_t::BRACE_LEFT))
-                block << statements(container);
+                block << statements(container, module);
             else if (container.consume(kind_t::BRACE_RIGHT))
                 break;
             else
-                block << expression(container);
+                block << expression(container, module);
         }
 
         return block;
     }
 
-    cyan::Expression expression(token::Container& container)
+    cyan::Expression expression(token::Container& container, cyan::Module& module)
     {
         /*
-         * expression = assignment | equation
+         * expression = equation | assignment | function
          */
 
         LOG_DEBUG("expression");
 
         if ((container.current(kind_t::IDENTIFIER) && container.next(kind_t::COLON)) ||
             (container.current(kind_t::IDENTIFIER) && container.next(kind_t::EQUAL)))
+        {
+            // assignment
             return assignment(container);
+        }
+        else if (container.current(kind_t::FUNCTION))
+        {
+            // function
+            function(container, module);
+            return cyan::Expression();
+        }
         else
+        {
+            // equation
             return equation(container);
+        }
     }
 
     cyan::Expression assignment(token::Container& container)
@@ -309,5 +326,30 @@ namespace parser
         }
 
         return result;
+    }
+
+    cyan::Function function(token::Container& container, cyan::Module& module)
+    {
+        /*
+         * "fn" identifier "(" ")" ":" type "{" statements "}"
+         */
+
+        LOG_DEBUG("function");
+
+        consumeForce(container, kind_t::FUNCTION);
+
+        auto name = container.consume().value;
+
+        consumeForce(container, kind_t::PARENTHESIS_LEFT);
+        consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+        consumeForce(container, kind_t::COLON);
+
+        auto type = cyan::Type(container.consume().value);
+        cyan::Function func(name, type);
+        func() = statements(container, module);
+
+        module << func;
+
+        return func;
     }
 }
