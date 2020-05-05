@@ -18,14 +18,15 @@ namespace parser
     statements = expression | "{" statements* "}"
     expression = assignment | equation
     assignment = identifier ( ":" type ) “=“ equation
-    equation = comparison ";"
+    equation = condition ";"
+    condition = comparison ( “&&” comparison | “||” comparison)*
     comparison = sum ( [ "==", <", "<=", ">=", ">" ] sum )*
     type = identifier
     sum = mul ( “+” mul | “-“ mul )*
     mul = unary ( “*” unary | “/“  unary | “%” unary )*
     unary = ( "+" | "-" ) priority
-    priority = primary | “(“ comparison “)”
-    primary = identifier ( "(" sum ")" )
+    priority = primary | “(“ condition “)”
+    primary = identifier ( "(" condition ")" )
     identifier = [_a-zA-Z][_a-zA-Z0-9]? | [0-9] ( "." [0-9]+ ) ( "f" )
 
  */
@@ -39,6 +40,8 @@ namespace parser
     cyan::Expression assignment(token::Container& container);
 
     cyan::Expression equation(token::Container& container);
+
+    cyan::Expression condition(token::Container& container);
 
     cyan::Expression comparison(token::Container& container);
 

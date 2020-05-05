@@ -45,7 +45,7 @@ namespace parser
     cyan::Expression primary(token::Container& container)
     {
         /*
-         * primary = identifier ( "(" sum ")" )
+         * primary = identifier ( "(" condition ")" )
          */
 
         LOG_DEBUG("primary");
@@ -58,7 +58,7 @@ namespace parser
         container.consume(kind_t::PARENTHESIS_LEFT);
 
         cyan::Arguments args;
-        args << sum(container);
+        args << condition(container);
 
         consumeForce(container, kind_t::PARENTHESISE_RIGHT);
 
@@ -71,14 +71,14 @@ namespace parser
     cyan::Expression priority(token::Container& container)
     {
         /*
-         * priority = primary | “(“ comparison “)”
+         * priority = primary | “(“ condition “)”
          */
 
         LOG_DEBUG("priority");
 
         if (container.consume(kind_t::PARENTHESIS_LEFT))
         {
-            auto result = comparison(container);
+            auto result = condition(container);
             consumeForce(container, kind_t::PARENTHESISE_RIGHT);
             return result.parenthesis();
         }
@@ -167,12 +167,12 @@ namespace parser
     cyan::Expression equation(token::Container& container)
     {
         /*
-         * equation = comparison ";"
+         * equation = condition ";"
          */
 
         LOG_DEBUG("equation");
 
-        auto result = comparison(container);
+        auto result = condition(container);
         consumeForce(container, kind_t::SEMICOLON);
         return result;
     }
@@ -281,6 +281,29 @@ namespace parser
                 result.graterThan(sum(container));
             else if (container.consume(kind_t::GRATER))
                 result.grater(sum(container));
+            else
+                break;
+        }
+
+        return result;
+    }
+
+    cyan::Expression condition(token::Container& container)
+    {
+        /*
+         * comparison ( “&&” comparison | “||” comparison)*
+         */
+
+        LOG_DEBUG("condition");
+
+        auto result = comparison(container);
+
+        while (container.hasNext())
+        {
+            if (container.consume(kind_t::AND))
+                result.andOp(comparison(container));
+            else if (container.consume(kind_t::OR))
+                result.orOp(comparison(container));
             else
                 break;
         }
