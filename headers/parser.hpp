@@ -5,6 +5,7 @@
 #ifndef BP_PARSER_HPP
 #define BP_PARSER_HPP
 
+#include <cyan/arguments.hpp>
 #include <cyan/code_block.hpp>
 #include <cyan/expression.hpp>
 #include <cyan/function.hpp>
@@ -20,7 +21,7 @@ namespace parser
     statements = expression | "{" statements* "}"
     expression = equation | assignment | function
     assignment = identifier ( ":" type ) “=“ equation
-    function = "fn" identifier "(" ")" "{" statements "}"
+    function = "fn" identifier defArgs : type "{" statements "}"
     equation = ( "return" ) condition ";"
     condition = comparison ( “&&” comparison | “||” comparison)*
     comparison = sum ( [ "==", <", "<=", ">=", ">" ] sum )*
@@ -29,7 +30,9 @@ namespace parser
     mul = unary ( “*” unary | “/“  unary | “%” unary )*
     unary = ( "+" | "-" ) priority
     priority = primary | “(“ condition “)”
-    primary = identifier ( "(" condition ")" )
+    primary = identifier ( calleeArgs )
+    defArgs = "(" ")" | "(" identifier ":" type ( "," identifier ":" type )*  ")"
+    calleeArgs = "(" ")" | "(" condition ( "," condition )*  ")"
     identifier = [_a-zA-Z][_a-zA-Z0-9]? | [0-9] ( "." [0-9]+ ) ( "f" )
 
  */
@@ -59,6 +62,10 @@ namespace parser
     cyan::Expression priority(token::Container& container);
 
     cyan::Expression primary(token::Container& container);
+
+    cyan::Variables defArgs(token::Container& container);
+
+    cyan::Arguments calleeArgs(token::Container& container);
 
     cyan::Expression identifier(token::Container& container);
 }

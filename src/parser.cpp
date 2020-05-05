@@ -45,7 +45,7 @@ namespace parser
     cyan::Expression primary(token::Container& container)
     {
         /*
-         * primary = identifier ( "(" condition ")" )
+         * identifier ( calleeArgs )
          */
 
         LOG_DEBUG("primary");
@@ -54,13 +54,7 @@ namespace parser
             return identifier(container);
 
         auto name = container.consume().value;
-
-        container.consume(kind_t::PARENTHESIS_LEFT);
-
-        cyan::Arguments args;
-        args << condition(container);
-
-        consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+        auto args = calleeArgs(container);
 
         if (name == "print")
             return args[0].cout().endl();
@@ -331,7 +325,7 @@ namespace parser
     cyan::Function function(token::Container& container, cyan::Module& module)
     {
         /*
-         * "fn" identifier "(" ")" ":" type "{" statements "}"
+         * function = "fn" identifier defArgs : type "{" statements "}"
          */
 
         LOG_DEBUG("function");
@@ -339,17 +333,71 @@ namespace parser
         consumeForce(container, kind_t::FUNCTION);
 
         auto name = container.consume().value;
-
-        consumeForce(container, kind_t::PARENTHESIS_LEFT);
-        consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+        auto args = defArgs(container);
         consumeForce(container, kind_t::COLON);
-
         auto type = cyan::Type(container.consume().value);
-        cyan::Function func(name, type);
+
+        cyan::Function func(name, type, args);
         func() = statements(container, module);
 
         module << func;
 
         return func;
+    }
+
+    cyan::Variables defArgs(token::Container& container)
+    {
+        /*
+         * defArgs = "(" ")" | "(" identifier ":" type ( "," identifier ":" type )*  ")"
+         */
+
+        LOG_DEBUG("defArgs");
+
+        cyan::Variables variables;
+
+        consumeForce(container, kind_t::PARENTHESIS_LEFT);
+        if (container.consume(kind_t::PARENTHESISE_RIGHT))
+            return variables;
+
+        while (container.hasNext())
+        {
+            auto name = container.consume().value;
+            consumeForce(container, kind_t::COLON);
+            auto type = cyan::Type(container.consume().value);
+            variables << cyan::Variable(name, type);
+
+            if (!container.consume(kind_t::COMMA))
+                break;
+        }
+
+        consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+
+        return variables;
+    }
+
+    cyan::Arguments calleeArgs(token::Container& container)
+    {
+        /*
+         * calleeArgs = "(" ")" | "(" condition ( "," condition )*  ")"
+         */
+
+        LOG_DEBUG("calleeArgs");
+
+        cyan::Arguments arguments;
+
+        consumeForce(container, kind_t::PARENTHESIS_LEFT);
+        if (container.consume(kind_t::PARENTHESISE_RIGHT))
+            return arguments;
+
+        while (container.hasNext())
+        {
+            arguments << condition(container);
+            if (!container.consume(kind_t::COMMA))
+                break;
+        }
+
+        consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+
+        return arguments;
     }
 }
