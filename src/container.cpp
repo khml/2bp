@@ -41,6 +41,11 @@ namespace token
         return tokens[indicator];
     }
 
+    bool Container::current(token::kind::Kind kind)
+    {
+        return current().kind == kind;
+    }
+
     Token& Container::next()
     {
         return tokens[++indicator];

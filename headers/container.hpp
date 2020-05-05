@@ -27,6 +27,8 @@ namespace token
 
         Token& current();
 
+        bool current(token::kind::Kind kind);
+
         Token& next();
 
         bool next(token::kind::Kind kind);
