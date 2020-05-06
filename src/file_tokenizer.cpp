@@ -48,7 +48,7 @@ namespace token
                         case token::kind::IDENTIFIER:
                         case token::kind::INCREMENTAL:
                         case token::kind::DECREMENTAL:
-                        case token::kind::PARENTHESISE_RIGHT:
+                        case token::kind::PARENTHESIS_RIGHT:
                             tokens.emplace_back(token::Token(token::kind::SEMICOLON, ";"));
                             break;
                         default:

@@ -13,7 +13,7 @@ TokenKind = OrderedDict([
     ('SLASH', '/'),
     ('AT', '@'),
     ('EQUAL', '='),
-    ('PARENTHESISE_RIGHT', ')'),
+    ('PARENTHESIS_RIGHT', ')'),
     ('PARENTHESIS_LEFT', '('),
     ('BRACKET_RIGHT', ']'),
     ('BRACKET_LEFT', '['),

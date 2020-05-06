@@ -148,7 +148,7 @@ namespace parser
         consumeForce(container, kind_t::IF);
         consumeForce(container, kind_t::PARENTHESIS_LEFT);
         auto cond = condition(container);
-        consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+        consumeForce(container, kind_t::PARENTHESIS_RIGHT);
         auto code = statements(container, module);
         control.if_(cond, code);
 
@@ -156,7 +156,7 @@ namespace parser
         {
             consumeForce(container, kind_t::PARENTHESIS_LEFT);
             cond = condition(container);
-            consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+            consumeForce(container, kind_t::PARENTHESIS_RIGHT);
             code = statements(container, module);
             control.elseIf_(cond, code);
         }
@@ -338,7 +338,7 @@ namespace parser
         if (container.consume(kind_t::PARENTHESIS_LEFT))
         {
             auto result = condition(container);
-            consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+            consumeForce(container, kind_t::PARENTHESIS_RIGHT);
             return result.parenthesis();
         }
 
@@ -376,7 +376,7 @@ namespace parser
         cyan::Variables variables;
 
         consumeForce(container, kind_t::PARENTHESIS_LEFT);
-        if (container.consume(kind_t::PARENTHESISE_RIGHT))
+        if (container.consume(kind_t::PARENTHESIS_RIGHT))
             return variables;
 
         while (container.hasNext())
@@ -390,7 +390,7 @@ namespace parser
                 break;
         }
 
-        consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+        consumeForce(container, kind_t::PARENTHESIS_RIGHT);
 
         return variables;
     }
@@ -406,7 +406,7 @@ namespace parser
         cyan::Arguments arguments;
 
         consumeForce(container, kind_t::PARENTHESIS_LEFT);
-        if (container.consume(kind_t::PARENTHESISE_RIGHT))
+        if (container.consume(kind_t::PARENTHESIS_RIGHT))
             return arguments;
 
         while (container.hasNext())
@@ -416,7 +416,7 @@ namespace parser
                 break;
         }
 
-        consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+        consumeForce(container, kind_t::PARENTHESIS_RIGHT);
 
         return arguments;
     }
