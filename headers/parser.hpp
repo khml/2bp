@@ -17,9 +17,9 @@ namespace parser
 {
     cyan::CodeBlock code(token::Container& container, cyan::Module& module);
 
-    cyan::CodeBlock statements(token::Container& container);
+    cyan::CodeBlock statements(token::Container& container, cyan::Module& module);
 
-    cyan::Expression expression(token::Container& container);
+    cyan::CodeBlock expression(token::Container& container, cyan::Module& module);
 
     cyan::Function function(token::Container& container, cyan::Module& module);
 

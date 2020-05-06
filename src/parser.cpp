@@ -45,7 +45,7 @@ namespace parser
     cyan::CodeBlock code(token::Container& container, cyan::Module& module)
     {
         /*
-         * code = statements* | function
+         * code = statements*
          */
 
         LOG_DEBUG("code");
@@ -55,17 +55,15 @@ namespace parser
         while (container.hasNext())
         {
             if (container.current(kind_t::BRACE_LEFT))
-                block << statements(container);
-            else if (container.current(kind_t::FUNCTION))
-                function(container, module);
+                block << statements(container, module);
             else
-                block << expression(container);
+                block + expression(container, module);
         }
 
         return block;
     }
 
-    cyan::CodeBlock statements(token::Container& container)
+    cyan::CodeBlock statements(token::Container& container, cyan::Module& module)
     {
         /*
          * statements = expression | "{" statements* "}"
@@ -80,28 +78,34 @@ namespace parser
         while (container.hasNext())
         {
             if (container.current(kind_t::BRACE_LEFT))
-                block << statements(container);
+                block << statements(container, module);
             else if (container.consume(kind_t::BRACE_RIGHT))
                 break;
             else
-                block << expression(container);
+                block + expression(container, module);
         }
 
         return block;
     }
 
-    cyan::Expression expression(token::Container& container)
+    cyan::CodeBlock expression(token::Container& container, cyan::Module& module)
     {
         /*
-         * expression = ( "return" ) equation
+         * expression = ( "return" ) equation | function
          */
 
         LOG_DEBUG("expression");
 
-        // equation
-        if (container.consume(kind_t::RETURN))
-            return equation(container).ret();
-        return equation(container);
+        cyan::CodeBlock code;
+
+        if (container.current(kind_t::FUNCTION))
+            function(container, module);
+        else if (container.consume(kind_t::RETURN))
+            code << equation(container).ret();
+        else
+            code << equation(container);
+
+        return code;
     }
 
     cyan::Function function(token::Container& container, cyan::Module& module)
@@ -120,7 +124,7 @@ namespace parser
         auto type = cyan::Type(container.consume().value);
 
         cyan::Function func(name, type, args);
-        func() = statements(container);
+        func() = statements(container, module);
 
         module << func;
 

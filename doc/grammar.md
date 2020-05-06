@@ -2,9 +2,9 @@
 
 ## EBNF
 
-code = statements* | function
+code = statements*
 statements = expression | "{" statements* "}"
-expression = ( "return" ) equation
+expression = ( "return" ) equation| function
 function = "fn" identifier defArgs : type "{" statements "}"
 equation = assignment | condition ";"
 assignment = identifier ( ":" type ) “=“ condition ";"
