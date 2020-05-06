@@ -42,144 +42,10 @@ namespace parser
         return cyan::Type(token::type::fromTokenType(token.type));
     }
 
-    cyan::Expression primary(token::Container& container)
-    {
-        /*
-         * identifier ( calleeArgs )
-         */
-
-        LOG_DEBUG("primary");
-
-        if (!container.next(kind_t::PARENTHESIS_LEFT))
-            return identifier(container);
-
-        auto name = container.consume().value;
-        auto args = calleeArgs(container);
-
-        if (name == "print")
-            return args[0].cout().endl();
-
-        return cyan::createCallee(name, args);
-    }
-
-    cyan::Expression priority(token::Container& container)
-    {
-        /*
-         * priority = primary | “(“ condition “)”
-         */
-
-        LOG_DEBUG("priority");
-
-        if (container.consume(kind_t::PARENTHESIS_LEFT))
-        {
-            auto result = condition(container);
-            consumeForce(container, kind_t::PARENTHESISE_RIGHT);
-            return result.parenthesis();
-        }
-
-        return primary(container);
-    }
-
-    cyan::Expression unary(token::Container& container)
-    {
-        /*
-         * unary = ( "+" | "-" ) priority
-         */
-
-        LOG_DEBUG("unary");
-
-        auto result = cyan::Expression();
-        if (container.consume(kind_t::ADD))
-            result.add(priority(container));
-        else if (container.consume(kind_t::SUB))
-            result.sub(priority(container));
-        else
-            result = priority(container);
-
-        return result;
-    }
-
-    cyan::Expression mul(token::Container& container)
-    {
-        /*
-         * mul = unary ( “*” unary | “/“  unary | “%” unary )*
-         */
-
-        LOG_DEBUG("mul");
-
-        auto result = unary(container);
-        while (container.hasNext())
-        {
-            if (container.consume(kind_t::ASTERISK))
-                result = result.mul(unary(container));
-            else if (container.consume(kind_t::SLASH))
-                result = result.div(unary(container));
-            else if (container.consume(kind_t::PERCENT))
-                result = result.mod(unary(container));
-            else
-                break;
-        }
-        return result;
-    }
-
-    cyan::Expression sum(token::Container& container)
-    {
-        /*
-         * sum = mul ( “+” mul | “-“ mul )*
-         */
-
-        LOG_DEBUG("sum");
-
-        auto result = mul(container);
-
-        while (container.hasNext())
-        {
-            if (container.consume(kind_t::ADD))
-                result = result.add(mul(container));
-            else if (container.consume(kind_t::SUB))
-                result = result.sub(mul(container));
-            else
-                break;
-        }
-
-        return result;
-    }
-
-    cyan::Expression identifier(token::Container& container)
-    {
-        /*
-         * identifier = [_a-zA-Z][_a-zA-Z0-9]? | [0-9] ( "." [0-9]+ ) ( "f" )
-         */
-
-        LOG_DEBUG("identifier");
-
-        auto& token = container.consume();
-        auto type = getType(token);
-        return cyan::xpr(cyan::Literal(type, token.value));
-    }
-
-    cyan::Expression equation(token::Container& container)
-    {
-        /*
-         * equation = ( "return" ) condition ";"
-         */
-
-        LOG_DEBUG("equation");
-
-        cyan::Expression result;
-
-        if (container.consume(kind_t::RETURN))
-            result = condition(container).ret();
-        else
-            result = condition(container);
-        consumeForce(container, kind_t::SEMICOLON);
-        return result;
-    }
-
     cyan::CodeBlock code(token::Container& container, cyan::Module& module)
     {
         /*
-         * code = statement*
+         * code = statements* | function
          */
 
         LOG_DEBUG("code");
@@ -189,15 +55,17 @@ namespace parser
         while (container.hasNext())
         {
             if (container.current(kind_t::BRACE_LEFT))
-                block << statements(container, module);
+                block << statements(container);
+            else if (container.current(kind_t::FUNCTION))
+                function(container, module);
             else
-                block << expression(container, module);
+                block << expression(container);
         }
 
         return block;
     }
 
-    cyan::CodeBlock statements(token::Container& container, cyan::Module& module)
+    cyan::CodeBlock statements(token::Container& container)
     {
         /*
          * statements = expression | "{" statements* "}"
@@ -212,41 +80,70 @@ namespace parser
         while (container.hasNext())
         {
             if (container.current(kind_t::BRACE_LEFT))
-                block << statements(container, module);
+                block << statements(container);
             else if (container.consume(kind_t::BRACE_RIGHT))
                 break;
             else
-                block << expression(container, module);
+                block << expression(container);
         }
 
         return block;
     }
 
-    cyan::Expression expression(token::Container& container, cyan::Module& module)
+    cyan::Expression expression(token::Container& container)
     {
         /*
-         * expression = equation | assignment | function
+         * expression = ( "return" ) equation
          */
 
         LOG_DEBUG("expression");
 
+        // equation
+        if (container.consume(kind_t::RETURN))
+            return equation(container).ret();
+        return equation(container);
+    }
+
+    cyan::Function function(token::Container& container, cyan::Module& module)
+    {
+        /*
+         * function = "fn" identifier defArgs : type "{" statements "}"
+         */
+
+        LOG_DEBUG("function");
+
+        consumeForce(container, kind_t::FUNCTION);
+
+        auto name = container.consume().value;
+        auto args = defArgs(container);
+        consumeForce(container, kind_t::COLON);
+        auto type = cyan::Type(container.consume().value);
+
+        cyan::Function func(name, type, args);
+        func() = statements(container);
+
+        module << func;
+
+        return func;
+    }
+
+    cyan::Expression equation(token::Container& container)
+    {
+        /*
+         * equation = assignment | condition ";"
+         */
+
+        LOG_DEBUG("equation");
+
+        // assignment
         if ((container.current(kind_t::IDENTIFIER) && container.next(kind_t::COLON)) ||
             (container.current(kind_t::IDENTIFIER) && container.next(kind_t::EQUAL)))
-        {
-            // assignment
             return assignment(container);
-        }
-        else if (container.current(kind_t::FUNCTION))
-        {
-            // function
-            function(container, module);
-            return cyan::Expression();
-        }
-        else
-        {
-            // equation
-            return equation(container);
-        }
+
+        // condition ";"
+        auto result = condition(container);
+        consumeForce(container, kind_t::SEMICOLON);
+        return result;
     }
 
     cyan::Expression assignment(token::Container& container)
@@ -268,6 +165,29 @@ namespace parser
         consumeForce(container, kind_t::EQUAL);
 
         return var.assign(equation(container));
+    }
+
+    cyan::Expression condition(token::Container& container)
+    {
+        /*
+         * comparison ( “&&” comparison | “||” comparison)*
+         */
+
+        LOG_DEBUG("condition");
+
+        auto result = comparison(container);
+
+        while (container.hasNext())
+        {
+            if (container.consume(kind_t::AND))
+                result.andOp(comparison(container));
+            else if (container.consume(kind_t::OR))
+                result.orOp(comparison(container));
+            else
+                break;
+        }
+
+        return result;
     }
 
     cyan::Expression comparison(token::Container& container)
@@ -299,22 +219,22 @@ namespace parser
         return result;
     }
 
-    cyan::Expression condition(token::Container& container)
+    cyan::Expression sum(token::Container& container)
     {
         /*
-         * comparison ( “&&” comparison | “||” comparison)*
+         * sum = mul ( “+” mul | “-“ mul )*
          */
 
-        LOG_DEBUG("condition");
+        LOG_DEBUG("sum");
 
-        auto result = comparison(container);
+        auto result = mul(container);
 
         while (container.hasNext())
         {
-            if (container.consume(kind_t::AND))
-                result.andOp(comparison(container));
-            else if (container.consume(kind_t::OR))
-                result.orOp(comparison(container));
+            if (container.consume(kind_t::ADD))
+                result = result.add(mul(container));
+            else if (container.consume(kind_t::SUB))
+                result = result.sub(mul(container));
             else
                 break;
         }
@@ -322,27 +242,84 @@ namespace parser
         return result;
     }
 
-    cyan::Function function(token::Container& container, cyan::Module& module)
+    cyan::Expression mul(token::Container& container)
     {
         /*
-         * function = "fn" identifier defArgs : type "{" statements "}"
+         * mul = unary ( “*” unary | “/“  unary | “%” unary )*
          */
 
-        LOG_DEBUG("function");
+        LOG_DEBUG("mul");
 
-        consumeForce(container, kind_t::FUNCTION);
+        auto result = unary(container);
+        while (container.hasNext())
+        {
+            if (container.consume(kind_t::ASTERISK))
+                result = result.mul(unary(container));
+            else if (container.consume(kind_t::SLASH))
+                result = result.div(unary(container));
+            else if (container.consume(kind_t::PERCENT))
+                result = result.mod(unary(container));
+            else
+                break;
+        }
+        return result;
+    }
+
+    cyan::Expression unary(token::Container& container)
+    {
+        /*
+         * unary = ( "+" | "-" ) priority
+         */
+
+        LOG_DEBUG("unary");
+
+        auto result = cyan::Expression();
+        if (container.consume(kind_t::ADD))
+            result.add(priority(container));
+        else if (container.consume(kind_t::SUB))
+            result.sub(priority(container));
+        else
+            result = priority(container);
+
+        return result;
+    }
+
+    cyan::Expression priority(token::Container& container)
+    {
+        /*
+         * priority = primary | “(“ condition “)”
+         */
+
+        LOG_DEBUG("priority");
+
+        if (container.consume(kind_t::PARENTHESIS_LEFT))
+        {
+            auto result = condition(container);
+            consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+            return result.parenthesis();
+        }
+
+        return primary(container);
+    }
+
+    cyan::Expression primary(token::Container& container)
+    {
+        /*
+         * identifier ( calleeArgs )
+         */
+
+        LOG_DEBUG("primary");
+
+        if (!container.next(kind_t::PARENTHESIS_LEFT))
+            return identifier(container);
 
         auto name = container.consume().value;
-        auto args = defArgs(container);
-        consumeForce(container, kind_t::COLON);
-        auto type = cyan::Type(container.consume().value);
+        auto args = calleeArgs(container);
 
-        cyan::Function func(name, type, args);
-        func() = statements(container, module);
+        if (name == "print")
+            return args[0].cout().endl();
 
-        module << func;
-
-        return func;
+        return cyan::createCallee(name, args);
     }
 
     cyan::Variables defArgs(token::Container& container)
@@ -399,5 +376,18 @@ namespace parser
         consumeForce(container, kind_t::PARENTHESISE_RIGHT);
 
         return arguments;
+    }
+
+    cyan::Expression identifier(token::Container& container)
+    {
+        /*
+         * identifier = [_a-zA-Z][_a-zA-Z0-9]? | [0-9] ( "." [0-9]+ ) ( "f" )
+         */
+
+        LOG_DEBUG("identifier");
+
+        auto& token = container.consume();
+        auto type = getType(token);
+        return cyan::xpr(cyan::Literal(type, token.value));
     }
 }
