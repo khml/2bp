@@ -45,7 +45,7 @@ namespace parser
     cyan::CodeBlock code(token::Container& container, cyan::Module& module)
     {
         /*
-         * code = statements*
+         * code = statement*
          */
 
         LOG_DEBUG("code");
@@ -55,7 +55,7 @@ namespace parser
         while (container.hasNext())
         {
             if (container.current(kind_t::BRACE_LEFT))
-                block << statements(container, module);
+                block << statement(container, module);
             else
                 block + expression(container, module);
         }
@@ -63,13 +63,28 @@ namespace parser
         return block;
     }
 
-    cyan::CodeBlock statements(token::Container& container, cyan::Module& module)
+    cyan::CodeBlock statement(token::Container& container, cyan::Module& module)
     {
         /*
-         * statements = expression | "{" statements* "}"
+         * statement = expression | statements
          */
 
         LOG_DEBUG("statements");
+
+        if (container.current(kind_t::BRACE_LEFT))
+            return statements(container, module);
+
+        cyan::CodeBlock code;
+        return code << expression(container, module);
+    }
+
+    cyan::CodeBlock statements(token::Container& container, cyan::Module& module)
+    {
+        /*
+         * statements = "{" { statements | expression } "}"
+         */
+
+        LOG_DEBUG("statement");
 
         auto block = cyan::CodeBlock();
 

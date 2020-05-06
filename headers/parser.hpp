@@ -18,6 +18,8 @@ namespace parser
 {
     cyan::CodeBlock code(token::Container& container, cyan::Module& module);
 
+    cyan::CodeBlock statement(token::Container& container, cyan::Module& module);
+
     cyan::CodeBlock statements(token::Container& container, cyan::Module& module);
 
     cyan::CodeBlock expression(token::Container& container, cyan::Module& module);

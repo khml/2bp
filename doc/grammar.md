@@ -15,8 +15,9 @@
 
 # Blue Print Grammar
 
-code = statements*
-statements = expression | "{" statements* "}"
+code = statement*
+statement = expression | statements
+statements = "{" { statements | expression } "}"
 expression = [ "return" ] equation | function | ifControl
 function = "fn" identifier defArgs : type "{" statements* "}"
 ifControl = "if" conditionBlock { "elif" conditionBlock } { "else" conditionBlock }
