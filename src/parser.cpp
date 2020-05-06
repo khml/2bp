@@ -91,7 +91,7 @@ namespace parser
     cyan::CodeBlock expression(token::Container& container, cyan::Module& module)
     {
         /*
-         * expression = ( "return" ) equation | function | ifControl
+         * expression = [ "return" ] equation | function | ifControl
          */
 
         LOG_DEBUG("expression");
@@ -113,7 +113,7 @@ namespace parser
     cyan::Function function(token::Container& container, cyan::Module& module)
     {
         /*
-         * function = "fn" identifier defArgs : type "{" statements "}"
+         * function = "fn" identifier defArgs : type "{" statements* "}"
          */
 
         LOG_DEBUG("function");
@@ -136,7 +136,7 @@ namespace parser
     cyan::IfControl ifControl(token::Container& container, cyan::Module& module)
     {
         /*
-         * ifControl = "if" conditionBlock ( "elif" conditionBlock )* ("else" "{" statements* "}" )
+         * ifControl = "if" conditionBlock { "elif" conditionBlock } { "else" conditionBlock }
          * conditionBlock = "(" condition ")" "{" statements* "}"
          */
 
@@ -192,7 +192,7 @@ namespace parser
     cyan::Expression assignment(token::Container& container)
     {
         /*
-         * assignment = identifier ( ":" type ) “=“ equation
+         * assignment = identifier [ ":" type ] “=“ condition ";"
          */
 
         LOG_DEBUG("assignment");
@@ -213,7 +213,7 @@ namespace parser
     cyan::Expression condition(token::Container& container)
     {
         /*
-         * comparison ( “&&” comparison | “||” comparison)*
+         * condition = comparison { “&&” comparison | “||” comparison }
          */
 
         LOG_DEBUG("condition");
@@ -236,7 +236,7 @@ namespace parser
     cyan::Expression comparison(token::Container& container)
     {
         /*
-         * comparison = sum ( [ "==", <", "<=", ">=", ">" ] sum )*
+         * comparison = sum { ( "==" | <" | "<=" | ">=" | ">" ) sum }
          */
 
         LOG_DEBUG("comparison");
@@ -265,7 +265,7 @@ namespace parser
     cyan::Expression sum(token::Container& container)
     {
         /*
-         * sum = mul ( “+” mul | “-“ mul )*
+         * sum = mul { “+” mul | “-“ mul }
          */
 
         LOG_DEBUG("sum");
@@ -288,7 +288,7 @@ namespace parser
     cyan::Expression mul(token::Container& container)
     {
         /*
-         * mul = unary ( “*” unary | “/“  unary | “%” unary )*
+         * mul = unary { “*” unary | “/“  unary | “%” unary }
          */
 
         LOG_DEBUG("mul");
@@ -311,7 +311,7 @@ namespace parser
     cyan::Expression unary(token::Container& container)
     {
         /*
-         * unary = ( "+" | "-" ) priority
+         * unary = [ "+" | "-" ] priority
          */
 
         LOG_DEBUG("unary");
@@ -348,7 +348,7 @@ namespace parser
     cyan::Expression primary(token::Container& container)
     {
         /*
-         * identifier ( calleeArgs )
+         * primary = identifier [ calleeArgs ]
          */
 
         LOG_DEBUG("primary");
@@ -368,7 +368,7 @@ namespace parser
     cyan::Variables defArgs(token::Container& container)
     {
         /*
-         * defArgs = "(" ")" | "(" identifier ":" type ( "," identifier ":" type )*  ")"
+         * defArgs = "(" [ identifier ":" type { "," identifier ":" type } ] ")"
          */
 
         LOG_DEBUG("defArgs");
@@ -398,7 +398,7 @@ namespace parser
     cyan::Arguments calleeArgs(token::Container& container)
     {
         /*
-         * calleeArgs = "(" ")" | "(" condition ( "," condition )*  ")"
+         * calleeArgs = "(" [ condition { "," condition } ] ")"
          */
 
         LOG_DEBUG("calleeArgs");
