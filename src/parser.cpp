@@ -74,8 +74,7 @@ namespace parser
         if (container.current(kind_t::BRACE_LEFT))
             return statements(container, module);
 
-        cyan::CodeBlock code;
-        return code << expression(container, module);
+        return expression(container, module);
     }
 
     cyan::CodeBlock statements(token::Container& container, cyan::Module& module)
@@ -128,7 +127,7 @@ namespace parser
     cyan::Function function(token::Container& container, cyan::Module& module)
     {
         /*
-         * function = "fn" identifier defArgs : type "{" statements* "}"
+         * function = "fn" identifier defArgs : type statements
          */
 
         LOG_DEBUG("function");
@@ -141,7 +140,7 @@ namespace parser
         auto type = cyan::Type(container.consume().value);
 
         cyan::Function func(name, type, args);
-        func() = statements(container, module);
+        func() = statement(container, module);
 
         module << func;
 
@@ -152,7 +151,7 @@ namespace parser
     {
         /*
          * ifControl = "if" conditionBlock { "elif" conditionBlock } { "else" conditionBlock }
-         * conditionBlock = "(" condition ")" "{" statements* "}"
+         * conditionBlock = "(" condition ")" statement
          */
 
         LOG_DEBUG("ifControl");
@@ -164,7 +163,7 @@ namespace parser
         consumeForce(container, kind_t::PARENTHESIS_LEFT);
         auto cond = condition(container);
         consumeForce(container, kind_t::PARENTHESIS_RIGHT);
-        auto code = statements(container, module);
+        auto code = statement(container, module);
         control.if_(cond, code);
 
         while (container.consume(kind_t::ELIF))
@@ -172,13 +171,13 @@ namespace parser
             consumeForce(container, kind_t::PARENTHESIS_LEFT);
             cond = condition(container);
             consumeForce(container, kind_t::PARENTHESIS_RIGHT);
-            code = statements(container, module);
+            code = statement(container, module);
             control.elseIf_(cond, code);
         }
 
         if (container.consume(kind_t::ELSE))
         {
-            code = statements(container, module);
+            code = statement(container, module);
             control.else_(code);
         }
 

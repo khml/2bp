@@ -19,9 +19,9 @@ code = statement*
 statement = expression | statements
 statements = "{" { statements | expression } "}"
 expression = [ "return" ] equation | function | ifControl
-function = "fn" identifier defArgs : type "{" statements* "}"
+function = "fn" identifier defArgs : type statements
 ifControl = "if" conditionBlock { "elif" conditionBlock } { "else" conditionBlock }
-conditionBlock = "(" condition ")" "{" statements* "}"
+conditionBlock = "(" condition ")" statement
 equation = assignment | condition ";"
 assignment = identifier [ ":" type ] “=“ condition ";"
 condition = comparison { “&&” comparison | “||” comparison }
