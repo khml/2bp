@@ -91,7 +91,7 @@ namespace parser
     cyan::CodeBlock expression(token::Container& container, cyan::Module& module)
     {
         /*
-         * expression = ( "return" ) equation | function
+         * expression = ( "return" ) equation | function | ifControl
          */
 
         LOG_DEBUG("expression");
@@ -100,6 +100,8 @@ namespace parser
 
         if (container.current(kind_t::FUNCTION))
             function(container, module);
+        else if (container.current(kind_t::IF))
+            code << ifControl(container, module);
         else if (container.consume(kind_t::RETURN))
             code << equation(container).ret();
         else
@@ -129,6 +131,43 @@ namespace parser
         module << func;
 
         return func;
+    }
+
+    cyan::IfControl ifControl(token::Container& container, cyan::Module& module)
+    {
+        /*
+         * ifControl = "if" conditionBlock ( "elif" conditionBlock )* ("else" "{" statements* "}" )
+         * conditionBlock = "(" condition ")" "{" statements* "}"
+         */
+
+        LOG_DEBUG("ifControl");
+
+        cyan::IfControl control;
+
+        // if control
+        consumeForce(container, kind_t::IF);
+        consumeForce(container, kind_t::PARENTHESIS_LEFT);
+        auto cond = condition(container);
+        consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+        auto code = statements(container, module);
+        control.if_(cond, code);
+
+        while (container.consume(kind_t::ELIF))
+        {
+            consumeForce(container, kind_t::PARENTHESIS_LEFT);
+            cond = condition(container);
+            consumeForce(container, kind_t::PARENTHESISE_RIGHT);
+            code = statements(container, module);
+            control.elseIf_(cond, code);
+        }
+
+        if (container.consume(kind_t::ELSE))
+        {
+            code = statements(container, module);
+            control.else_(code);
+        }
+
+        return control;
     }
 
     cyan::Expression equation(token::Container& container)
@@ -392,6 +431,12 @@ namespace parser
 
         auto& token = container.consume();
         auto type = getType(token);
-        return cyan::xpr(cyan::Literal(type, token.value));
+
+        if (token.value == "True")
+            return cyan::xpr(cyan::BoolValue(true));
+        else if (token.value == "False")
+            return cyan::xpr(cyan::BoolValue(false));
+        else
+            return cyan::xpr(cyan::Literal(type, token.value));
     }
 }

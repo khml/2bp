@@ -4,8 +4,10 @@
 
 code = statements*
 statements = expression | "{" statements* "}"
-expression = ( "return" ) equation| function
+expression = ( "return" ) equation | function | ifControl
 function = "fn" identifier defArgs : type "{" statements "}"
+ifControl = "if" conditionBlock ( "elif" conditionBlock )* ("else" conditionBlock )
+conditionBlock = "(" condition ")" "{" statements* "}"
 equation = assignment | condition ";"
 assignment = identifier ( ":" type ) “=“ condition ";"
 condition = comparison ( “&&” comparison | “||” comparison)*

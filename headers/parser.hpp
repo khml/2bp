@@ -7,6 +7,7 @@
 
 #include <cyan/arguments.hpp>
 #include <cyan/code_block.hpp>
+#include <cyan/control.hpp>
 #include <cyan/expression.hpp>
 #include <cyan/function.hpp>
 #include <cyan/module.hpp>
@@ -22,6 +23,8 @@ namespace parser
     cyan::CodeBlock expression(token::Container& container, cyan::Module& module);
 
     cyan::Function function(token::Container& container, cyan::Module& module);
+
+    cyan::IfControl ifControl(token::Container& container, cyan::Module& module);
 
     cyan::Expression equation(token::Container& container);
 
