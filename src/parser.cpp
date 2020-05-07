@@ -187,26 +187,30 @@ namespace parser
     cyan::Expression equation(token::Container& container)
     {
         /*
-         * equation = assignment | condition ";"
+         * equation = ( assignment | condition ) ";"
          */
 
         LOG_DEBUG("equation");
 
-        // assignment
+        cyan::Expression code;
+
+        if (container.consume(kind_t::SEMICOLON))
+            return code;
+
         if ((container.current(kind_t::IDENTIFIER) && container.next(kind_t::COLON)) ||
             (container.current(kind_t::IDENTIFIER) && container.next(kind_t::EQUAL)))
-            return assignment(container);
+            code = assignment(container);
+        else
+            code = condition(container);
 
-        // condition ";"
-        auto result = condition(container);
         consumeForce(container, kind_t::SEMICOLON);
-        return result;
+        return code;
     }
 
     cyan::Expression assignment(token::Container& container)
     {
         /*
-         * assignment = identifier [ ":" type ] “=“ condition ";"
+         * assignment = identifier [ ":" type ] “=“ condition
          */
 
         LOG_DEBUG("assignment");
@@ -221,7 +225,7 @@ namespace parser
 
         consumeForce(container, kind_t::EQUAL);
 
-        return var.assign(equation(container));
+        return var.assign(condition(container));
     }
 
     cyan::Expression condition(token::Container& container)
