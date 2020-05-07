@@ -105,7 +105,7 @@ namespace parser
     cyan::CodeBlock expression(token::Container& container, cyan::Module& module)
     {
         /*
-         * expression = [ "return" ] equation | function | ifControl | forControl
+         * expression = [ "return" ] equation | function | ifControl | forControl | whileControl
          */
 
         LOG_DEBUG("expression");
@@ -118,6 +118,8 @@ namespace parser
             code << ifControl(container, module);
         else if (container.current(kind_t::FOR))
             code << forControl(container, module);
+        else if (container.current(kind_t::WHILE))
+            code << whileControl(container, module);
         else if (container.consume(kind_t::RETURN))
             code << equation(container).ret();
         else
@@ -213,6 +215,22 @@ namespace parser
 
         control() = statement(container, module);
 
+        return control;
+    }
+
+    cyan::WhileControl whileControl(token::Container& container, cyan::Module& module)
+    {
+        /*
+         * whileControl = "while" "(" condition ")" statement
+         */
+
+        LOG_DEBUG("whileControl");
+
+        consumeForce(container, kind_t::WHILE);
+        consumeForce(container, kind_t::PARENTHESIS_LEFT);
+        cyan::WhileControl control(condition(container));
+        consumeForce(container, kind_t::PARENTHESIS_RIGHT);
+        control() = statement(container, module);
         return control;
     }
 

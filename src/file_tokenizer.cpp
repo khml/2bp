@@ -39,6 +39,7 @@ namespace token
                 case token::kind::ELIF:
                 case token::kind::ELSE:
                 case token::kind::FOR:
+                case token::kind::WHILE:
                 case token::kind::SWITCH:
                 case token::kind::CASE:
                     break;
