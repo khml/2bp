@@ -28,6 +28,8 @@ namespace parser
 
     cyan::IfControl ifControl(token::Container& container, cyan::Module& module);
 
+    cyan::ForControl forControl(token::Container& container, cyan::Module& module);
+
     cyan::Expression equation(token::Container& container);
 
     cyan::Expression assignment(token::Container& container);
@@ -43,6 +45,8 @@ namespace parser
     cyan::Expression unary(token::Container& container);
 
     cyan::Expression priority(token::Container& container);
+
+    cyan::Expression increment(token::Container& container);
 
     cyan::Expression primary(token::Container& container);
 

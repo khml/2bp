@@ -105,7 +105,7 @@ namespace parser
     cyan::CodeBlock expression(token::Container& container, cyan::Module& module)
     {
         /*
-         * expression = [ "return" ] equation | function | ifControl
+         * expression = [ "return" ] equation | function | ifControl | forControl
          */
 
         LOG_DEBUG("expression");
@@ -116,6 +116,8 @@ namespace parser
             function(container, module);
         else if (container.current(kind_t::IF))
             code << ifControl(container, module);
+        else if (container.current(kind_t::FOR))
+            code << forControl(container, module);
         else if (container.consume(kind_t::RETURN))
             code << equation(container).ret();
         else
@@ -180,6 +182,36 @@ namespace parser
             code = statement(container, module);
             control.else_(code);
         }
+
+        return control;
+    }
+
+    cyan::ForControl forControl(token::Container& container, cyan::Module& module)
+    {
+        /*
+         * forControl = "for" "(" equation [condition] ";" [condition] ")" statement
+         */
+
+        LOG_DEBUG("forControl");
+
+        consumeForce(container, kind_t::FOR);
+        consumeForce(container, kind_t::PARENTHESIS_LEFT);
+
+        auto init = equation(container);
+
+        cyan::Expression cond;
+        if (!container.current(kind_t::SEMICOLON))
+            cond = condition(container);
+        consumeForce(container, kind_t::SEMICOLON);
+
+        cyan::Expression iter;
+        if (!container.current(kind_t::PARENTHESIS_RIGHT))
+            iter = condition(container);
+        consumeForce(container, kind_t::PARENTHESIS_RIGHT);
+
+        cyan::ForControl control(init, cond, iter);
+
+        control() = statement(container, module);
 
         return control;
     }
@@ -348,7 +380,7 @@ namespace parser
     cyan::Expression priority(token::Container& container)
     {
         /*
-         * priority = primary | “(“ condition “)”
+         * priority = increment | “(“ condition “)”
          */
 
         LOG_DEBUG("priority");
@@ -360,7 +392,32 @@ namespace parser
             return result.parenthesis();
         }
 
-        return primary(container);
+        return increment(container);
+    }
+
+    cyan::Expression increment(token::Container& container)
+    {
+        /*
+         * increment = [ "++" | "--" ] primary | primary [ "++" | "--" ]
+         */
+
+        LOG_DEBUG("increment");
+
+        if (container.consume(kind_t::INCREMENTAL))
+            return primary(container).preIncrement();
+
+        if (container.consume(kind_t::DECREMENTAL))
+            return primary(container).preDecrement();
+
+        auto code = primary(container);
+
+        if (container.consume(kind_t::INCREMENTAL))
+            return code.postIncrement();
+
+        if (container.consume(kind_t::DECREMENTAL))
+            return code.postDecrement();
+
+        return code;
     }
 
     cyan::Expression primary(token::Container& container)

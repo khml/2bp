@@ -21,13 +21,15 @@ statement = expression | statements
 
 statements = "{" { statements | expression } "}"
 
-expression = [ "return" ] equation | function | ifControl
+expression = [ "return" ] equation | function | ifControl | forControl
 
 function = "fn" identifier defArgs : type statements
 
 ifControl = "if" conditionBlock { "elif" conditionBlock } { "else" conditionBlock }
 
 conditionBlock = "(" condition ")" statement
+
+forControl = "for" "(" equation [condition] ";" [condition] ")" statement
 
 equation = ( assignment | condition ) ";"
 
@@ -45,7 +47,9 @@ mul = unary { “*” unary | “/“  unary | “%” unary }
 
 unary = [ "+" | "-" ] priority
 
-priority = primary | “(“ condition “)”
+priority = incr | “(“ condition “)”
+
+increment = [ "++" | "--" ] primary | primary [ "++" | "--" ]
 
 primary = identifier [ calleeArgs ]
 
