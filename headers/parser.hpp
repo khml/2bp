@@ -30,6 +30,8 @@ namespace parser
 
     cyan::ForControl forControl(token::Container& container, cyan::Module& module);
 
+    cyan::WhileControl whileControl(token::Container& container, cyan::Module& module);
+
     cyan::Expression equation(token::Container& container);
 
     cyan::Expression assignment(token::Container& container);

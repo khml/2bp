@@ -21,7 +21,7 @@ statement = expression | statements
 
 statements = "{" { statements | expression } "}"
 
-expression = [ "return" ] equation | function | ifControl | forControl
+expression = [ "return" ] equation | function | ifControl | forControl | whileControl
 
 function = "fn" identifier defArgs : type statements
 
@@ -30,6 +30,8 @@ ifControl = "if" conditionBlock { "elif" conditionBlock } { "else" conditionBloc
 conditionBlock = "(" condition ")" statement
 
 forControl = "for" "(" equation [condition] ";" [condition] ")" statement
+
+whileControl = "while" "(" condition ")" statement
 
 equation = ( assignment | condition ) ";"
 
