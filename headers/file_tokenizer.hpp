@@ -9,25 +9,25 @@
 
 namespace token
 {
-    class file_tokenizer : protected Tokenizer
+    class FileTokenizer : protected Tokenizer
     {
     public:
-        explicit file_tokenizer(const std::string& filename);
+        explicit FileTokenizer(const std::string& filename);
 
-        ~file_tokenizer() override;
+        ~FileTokenizer() override;
 
         std::vector<Token> tokenize();
 
     protected:
-        uint16_t row{};
-
-        Token makeToken(token::kind::Kind kindVal, const std::string& value, token::type::Type type) override;
-
-        Token makeToken(token::kind::Kind kindVal, const std::string& value) override;
+        size_t row{};
 
         const std::string filename;
 
         std::vector<std::string> lines;
+
+        Token makeToken(token::kind::Kind kindVal, const std::string& value, token::type::Type type) override;
+
+        Token makeToken(token::kind::Kind kindVal, const std::string& value) override;
     };
 }
 

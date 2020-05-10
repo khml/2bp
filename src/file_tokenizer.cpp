@@ -11,13 +11,13 @@
 
 namespace token
 {
-    file_tokenizer::file_tokenizer(const std::string& filename) :filename(filename), lines(io::readFile(filename))
+    FileTokenizer::FileTokenizer(const std::string& filename) :filename(filename), lines(io::readFile(filename))
     {}
 
-    file_tokenizer::~file_tokenizer()
+    FileTokenizer::~FileTokenizer()
     = default;
 
-    std::vector<Token> file_tokenizer::tokenize()
+    std::vector<Token> FileTokenizer::tokenize()
     {
         row = 0;
         std::vector<Token> allTokens;
@@ -64,12 +64,12 @@ namespace token
         return std::move(allTokens);
     }
 
-    Token file_tokenizer::makeToken(token::kind::Kind kindVal, const std::string& value, token::type::Type type)
+    Token FileTokenizer::makeToken(token::kind::Kind kindVal, const std::string& value, token::type::Type type)
     {
         return Token(kindVal, value, type, filename, row);
     }
 
-    Token file_tokenizer::makeToken(token::kind::Kind kindVal, const std::string& value)
+    Token FileTokenizer::makeToken(token::kind::Kind kindVal, const std::string& value)
     {
         return Token(kindVal, value, filename, row);
     }
