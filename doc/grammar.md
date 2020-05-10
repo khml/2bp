@@ -23,7 +23,7 @@ statements = "{" { statements | expression } "}"
 
 expression = [ "return" ] equation | function | ifControl | forControl | whileControl
 
-function = "fn" identifier defArgs : type statements
+function = "fn" identifier defArgs "->" type statements
 
 ifControl = "if" conditionBlock { "elif" conditionBlock } { "else" conditionBlock }
 
