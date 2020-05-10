@@ -4,7 +4,7 @@ project(bp)
 set(BP bp)
 set(CMAKE_CXX_STANDARD 14)
 
-execute_process(COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/codegen/token_kind_generator.py)
+execute_process(COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/codegen/token_kind_generator.py)
 
 set(CYAN_LIB cyan)
 file(GLOB CYAN_SOURCES cyan/cyan/src/*.cpp)

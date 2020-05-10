@@ -11,8 +11,11 @@
 
 namespace token
 {
-    Token::Token(const token::kind::Kind kind, std::string value) :kind(kind), MOVE(value),
+    Token::Token(const token::kind::Kind kind, const std::string& value) :kind(kind), value(value),
         type(token::type::toType(value)), filename(""), row(0)
+    {}
+
+    Token::Token(const token::kind::Kind kind, std::string&& value) :Token(kind, value)
     {}
 
     Token::Token(const token::kind::Kind kind, std::string value, token::type::Type type) :kind(kind),

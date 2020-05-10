@@ -31,7 +31,7 @@ namespace token
     private:
         std::string line;
         std::vector<Token> tokens;
-        int indicator = 0;
+        size_t indicator = 0;
 
         void pushToken(token::kind::Kind kindVal, const std::string& value, token::type::Type type);
 

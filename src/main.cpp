@@ -39,7 +39,7 @@ void read_file_and_print(const string& filename)
 {
     //STD_ERR_LOG("filename = " << filename);
 
-    token::file_tokenizer tokenizer(filename);
+    token::FileTokenizer tokenizer(filename);
     auto tokens = tokenizer.tokenize();
     //token::printTokens(tokens);
     auto container = token::Container(tokens);

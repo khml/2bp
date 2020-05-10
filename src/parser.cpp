@@ -131,7 +131,7 @@ namespace parser
     cyan::Function function(token::Container& container, cyan::Module& module)
     {
         /*
-         * function = "fn" identifier defArgs : type statements
+         * function = "fn" identifier defArgs "->" type statements
          */
 
         LOG_DEBUG("function");
@@ -140,7 +140,7 @@ namespace parser
 
         auto name = container.consume().value;
         auto args = defArgs(container);
-        consumeForce(container, kind_t::COLON);
+        consumeForce(container, kind_t::ARROW);
         auto type = cyan::Type(container.consume().value);
 
         cyan::Function func(name, type, args);

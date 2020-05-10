@@ -148,7 +148,16 @@ namespace token
         token::kind::Kind kind;
 
         LOG_DEBUG(line);
-        for (indicator = 0; indicator < line.size(); indicator++)
+
+        size_t indent;
+        for (indent = 0; indent < line.size(); indent++)
+        {
+            ch = line.substr(indent, 1);
+            if (kind::toTokenKind(ch) != token::kind::WHITESPACE)
+                break;
+        }
+
+        for (indicator = indent; indicator < line.size(); indicator++)
         {
             ch = line.substr(indicator, 1);
             kind = token::kind::toTokenKind(ch);
@@ -189,6 +198,9 @@ namespace token
             }
             LOG_DEBUG("idx: " << indicator << ", kind: " << token::kind::fromTokenKind(kind) << ", ch: " << ch);
         }
+
+        tokens.emplace_back(Token(kind::WHITESPACE, std::string(indent, ' ')));
+
         return std::move(tokens);
     }
 }
