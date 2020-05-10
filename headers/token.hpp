@@ -13,7 +13,9 @@ namespace token
     class Token
     {
     public:
-        Token(token::kind::Kind kind, std::string value);
+        Token(token::kind::Kind kind, const std::string& value);
+
+        Token(token::kind::Kind kind, std::string&& value);
 
         Token(token::kind::Kind kind, std::string value, token::type::Type type);
 
@@ -38,6 +40,5 @@ namespace token
         void print();
     };
 }
-
 
 #endif //BLUEPRINT_TOKEN_HPP

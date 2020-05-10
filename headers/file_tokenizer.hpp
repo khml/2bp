@@ -28,6 +28,8 @@ namespace token
         Token makeToken(token::kind::Kind kindVal, const std::string& value, token::type::Type type) override;
 
         Token makeToken(token::kind::Kind kindVal, const std::string& value) override;
+
+        std::vector<std::vector<Token>> tokenizeFile();
     };
 }
 

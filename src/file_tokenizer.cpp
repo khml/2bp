@@ -22,12 +22,11 @@ namespace token
         row = 0;
         std::vector<Token> allTokens;
 
-        for (auto& line : lines)
-        {
-            std::vector<Token> tokens = Tokenizer::tokenize(line);
-            row++;
+        auto tokenizedLineList = tokenizeFile();
 
-            if(tokens.empty())
+        for (auto& tokens : tokenizedLineList)
+        {
+            if (tokens.empty())
                 continue;
 
             switch (tokens.front().kind)
@@ -72,5 +71,61 @@ namespace token
     Token FileTokenizer::makeToken(token::kind::Kind kindVal, const std::string& value)
     {
         return Token(kindVal, value, filename, row);
+    }
+
+    std::vector<std::vector<Token>> FileTokenizer::tokenizeFile()
+    {
+        row = 0;
+        std::vector<std::vector<Token>> tokenizedLines;
+
+        std::vector<Token> braceLeft({Token(kind::BRACE_LEFT, "{")});
+        std::vector<Token> braceRight({Token(kind::BRACE_RIGHT, "}")});
+
+        size_t preIndent = 0;
+        size_t postIndent = 0;
+        size_t depth = 0;
+        for (auto& line : lines)
+        {
+            auto tokenList = Tokenizer::tokenize(line);
+            row++;
+            postIndent = tokenList.back().value.size();
+            tokenList.pop_back();
+
+            if (tokenList.empty())
+                continue;
+
+            if (postIndent < preIndent)
+            {
+                tokenizedLines.emplace_back(braceRight);
+                depth--;
+            }
+
+            if (postIndent == 0)
+            {
+                while (depth > 0)
+                {
+                    tokenizedLines.emplace_back(braceRight);
+                    depth--;
+                }
+            }
+
+            if (postIndent > preIndent)
+            {
+                tokenizedLines.emplace_back(braceLeft);
+                depth++;
+            }
+
+            tokenizedLines.emplace_back(tokenList);
+
+            preIndent = postIndent;
+        }
+
+        while (depth > 0)
+        {
+            tokenizedLines.emplace_back(braceRight);
+            depth--;
+        }
+
+        return tokenizedLines;
     }
 }
