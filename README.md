@@ -1,35 +1,43 @@
-# BluePrint
+# BP
+BP is small programming language (transpile to C++ program).
 
-Now can parse only simple sentence.
+## dependencies
 
-## Example
+- GCC 7.5 and more
 
-```
-=x+y*z
-node: +, left: x, right: *
-node: x
-node: *, left: y, right: z
-node: y
-node: z
- | IDENTIFIER
-x | IDENTIFIER
-+ | ADD
-y | IDENTIFIER
-* | ASTERISK
-z | IDENTIFIER
-digraph AST {
-  graph [
-    dpi = 300;
-    ratio = 0.5;
-  ]
-  4 [ label = "+" ]
-  4->0
-  4->3
-  0 [ label = "x" ]
-  3 [ label = "*" ]
-  3->1
-  3->2
-  1 [ label = "y" ]
-  2 [ label = "z" ]
-}
+## Getting Started
+
+#### build
+
+```sh
+$ git clone https://github.com/khml/2bp.git
+
+$ cd 2bp
+
+$ mkdir build && cd build
+
+$ cmake ..
+
+# build bp compiler(transpiler)
+$ make
+
+# bp is transpiler
+
+$ ./bp
+> 1+2*3
+1 | IDENTIFIER | INTEGER
++ | ADD | OPERATOR
+2 | IDENTIFIER | INTEGER
+* | ASTERISK | OPERATOR
+3 | IDENTIFIER | INTEGER
+ | WHITESPACE | IDENTIFIER
+> ^C
+
+$ echo 'print("Hello")' > hello.bp
+
+$ ./bp hello.bp
+
+$ ./a.out
+Hello
+
 ```
